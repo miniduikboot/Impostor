@@ -1,0 +1,58 @@
+name: Create Release
+
+on:
+  push:
+    branches: [ auproximity ]
+    tags:
+      - 'v*'
+
+jobs:
+  build-impostor-server:
+    defaults:
+      run:
+        working-directory: src/Impostor.Server
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build Impostor.Server
+        run: dotnet publish -r linux-x64 -c Release -p:PublishSingleFile=true
+      - name: Upload Release Asset
+        uses: xresloader/upload-to-github-release@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: src/Impostor.Server/bin/Release/net5.0/linux-x64/publish/Impostor.Server
+          draft: false
+
+  build-auprox-plugin:
+    defaults:
+      run:
+        working-directory: src/Electric.AUProximity
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build Impostor.Server
+        run: dotnet publish -r linux-x64 -c Release
+      - name: Upload Release Asset
+        uses: xresloader/upload-to-github-release@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: src/Electric.AUProximity/bin/Release/net5.0/linux-x64/Electric.AUProximity.dll
+          draft: false
