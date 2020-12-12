@@ -1,9 +1,11 @@
 ﻿using System.Numerics;
 using System.Threading.Tasks;
 using Impostor.Api;
+using Impostor.Api.Events.Managers;
 using Impostor.Api.Innersloth;
 using Impostor.Api.Net;
 using Impostor.Api.Net.Messages;
+using Impostor.Server.Events.Player;
 using Impostor.Server.Net.State;
 using Microsoft.Extensions.Logging;
 
@@ -15,6 +17,7 @@ namespace Impostor.Server.Net.Inner.Objects.Components
         private static readonly FloatRange YRange = new FloatRange(-40f, 40f);
 
         private readonly ILogger<InnerCustomNetworkTransform> _logger;
+        private IEventManager _eventManager;
         private readonly InnerPlayerControl _playerControl;
         private readonly Game _game;
 
@@ -22,9 +25,10 @@ namespace Impostor.Server.Net.Inner.Objects.Components
         private Vector2 _targetSyncPosition;
         private Vector2 _targetSyncVelocity;
 
-        public InnerCustomNetworkTransform(ILogger<InnerCustomNetworkTransform> logger, InnerPlayerControl playerControl, Game game)
+        public InnerCustomNetworkTransform(ILogger<InnerCustomNetworkTransform> logger, IEventManager eventManager, InnerPlayerControl playerControl, Game game)
         {
             _logger = logger;
+            _eventManager = eventManager;
             _playerControl = playerControl;
             _game = game;
         }
@@ -100,7 +104,7 @@ namespace Impostor.Server.Net.Inner.Objects.Components
             return true;
         }
 
-        public override void Deserialize(IClientPlayer sender, IClientPlayer? target, IMessageReader reader, bool initialState)
+        public override async void Deserialize(IClientPlayer sender, IClientPlayer? target, IMessageReader reader, bool initialState)
         {
             var sequenceId = reader.ReadUInt16();
 
@@ -130,6 +134,7 @@ namespace Impostor.Server.Net.Inner.Objects.Components
                 _lastSequenceId = sequenceId;
                 _targetSyncPosition = ReadVector2(reader);
                 _targetSyncVelocity = ReadVector2(reader);
+                await _eventManager.CallAsync(new PlayerMovementEvent(_game, sender, _playerControl, _targetSyncPosition, _targetSyncVelocity));
             }
         }
 

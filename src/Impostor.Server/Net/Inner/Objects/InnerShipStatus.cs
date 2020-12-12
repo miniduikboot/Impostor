@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Impostor.Api;
+using Impostor.Api.Events.Managers;
 using Impostor.Api.Innersloth;
 using Impostor.Api.Net;
 using Impostor.Api.Net.Inner.Objects;
 using Impostor.Api.Net.Messages;
+using Impostor.Server.Events.Player;
 using Impostor.Server.Net.Inner.Objects.Systems;
 using Impostor.Server.Net.Inner.Objects.Systems.ShipStatus;
 using Impostor.Server.Net.State;
@@ -16,12 +18,14 @@ namespace Impostor.Server.Net.Inner.Objects
     internal class InnerShipStatus : InnerNetObject, IInnerShipStatus
     {
         private readonly ILogger<InnerShipStatus> _logger;
+        private readonly IEventManager _eventManager;
         private readonly Game _game;
         private readonly Dictionary<SystemTypes, ISystemType> _systems;
 
-        public InnerShipStatus(ILogger<InnerShipStatus> logger, Game game)
+        public InnerShipStatus(ILogger<InnerShipStatus> logger, IEventManager eventManager, Game game)
         {
             _logger = logger;
+            _eventManager = eventManager;
             _game = game;
 
             _systems = new Dictionary<SystemTypes, ISystemType>
@@ -46,7 +50,7 @@ namespace Impostor.Server.Net.Inner.Objects
             Components.Add(this);
         }
 
-        public override ValueTask HandleRpc(ClientPlayer sender, ClientPlayer? target, RpcCalls call,
+        public override async ValueTask HandleRpc(ClientPlayer sender, ClientPlayer? target, RpcCalls call,
             IMessageReader reader)
         {
             switch (call)
@@ -83,6 +87,10 @@ namespace Impostor.Server.Net.Inner.Objects
 
                     var player = reader.ReadNetObject<InnerPlayerControl>(_game);
                     var amount = reader.ReadByte();
+                    if (systemType != SystemTypes.Comms)
+                    {
+                        await _eventManager.CallAsync(new PlayerRepairSystemEvent(_game, sender, player, systemType, amount));
+                    }
 
                     // TODO: Modify data (?)
                     break;
@@ -94,8 +102,6 @@ namespace Impostor.Server.Net.Inner.Objects
                     break;
                 }
             }
-
-            return default;
         }
 
         public override bool Serialize(IMessageWriter writer, bool initialState)
@@ -129,6 +135,45 @@ namespace Impostor.Server.Net.Inner.Objects
             else
             {
                 var count = reader.ReadPackedUInt32();
+
+                // Ugly baby patch for release
+                var reader2 = reader.Copy();
+                // if mask contains systemtype id for comms
+                if ((count & (1 << 14)) != 0)
+                {
+                    if (_game.Options.Map == MapTypes.Skeld || _game.Options.Map == MapTypes.Polus) {
+                        // if it is sabotaged
+                        if (reader2.ReadBoolean())
+                        {
+                            this._eventManager.CallAsync(new PlayerRepairSystemEvent(_game, sender, null, SystemTypes.Comms, 1));
+                        }
+                        else
+                        {
+                            this._eventManager.CallAsync(new PlayerRepairSystemEvent(_game, sender, null, SystemTypes.Comms, 0));
+                        }
+                    }
+                    else if (_game.Options.Map == MapTypes.MiraHQ)
+                    {
+                        var consoleCount = reader2.ReadPackedUInt32();
+                        for (var i = 0; i < consoleCount; i++)
+                        {
+                            reader2.ReadByte();
+                            reader2.ReadByte();
+                        }
+
+                        consoleCount = reader2.ReadPackedUInt32();
+                        if (consoleCount == 0)
+                        {
+                            // sabotaged
+                            this._eventManager.CallAsync(new PlayerRepairSystemEvent(_game, sender, null, SystemTypes.Comms, 1));
+                        }
+
+                        // if completed consoles is length two, and both are completed
+                        if (consoleCount == 2 && reader2.ReadBoolean() && reader2.ReadBoolean()) {
+                            this._eventManager.CallAsync(new PlayerRepairSystemEvent(_game, sender, null, SystemTypes.Comms, 0));
+                        }
+                    }
+                }
 
                 foreach (var systemType in SystemTypeHelpers.AllTypes)
                 {

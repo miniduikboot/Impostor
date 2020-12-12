@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using Impostor.Api.Plugins;
-using Impostor.Server.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.Hosting;
@@ -49,6 +48,15 @@ namespace Impostor.Server.Plugins
                 if (name.Name.Equals("Impostor.Api"))
                 {
                     return typeof(IPlugin).Assembly;
+                }
+
+                if (name.Name.Equals("System.IO.Pipelines"))
+                {
+                    var aspnetPath = libraryPaths.Find(s => s.Contains("Microsoft.AspNetCore.App"));
+                    if (aspnetPath != null)
+                    {
+                        return Assembly.LoadFile(Path.Combine(aspnetPath, "System.IO.Pipelines.dll"));
+                    }
                 }
 
                 var info = assemblyInfos.FirstOrDefault(a => a.AssemblyName.Name == name.Name);
