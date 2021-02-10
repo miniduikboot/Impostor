@@ -13,5 +13,6 @@ namespace Electric.AUProximity.Hub
         Task GameEnd();
         Task CommsSabotage(bool fix);
         Task MapChange(MapTypes id);
+        Task HostChange(string name);
     }
 }

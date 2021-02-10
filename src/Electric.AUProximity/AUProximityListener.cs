@@ -23,8 +23,13 @@ namespace Electric.AUProximity
             _proximityHub.Clients.Group(e.Game.Code).GameStarted();
             _proximityHub.Clients.Group(e.Game.Code).MapChange(e.Game.Options.Map);
         }
-        
-        
+
+        [EventListener]
+        public void GameHostChangeEvent(IGameHostChangeEvent e)
+        {
+            _proximityHub.Clients.Group(e.Game.Code).HostChange(e.Host.Client.Name);
+        }
+
         [EventListener]
         public void OnPlayerMove(IPlayerMovementEvent e)
         {
