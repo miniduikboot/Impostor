@@ -25,6 +25,14 @@ namespace Electric.AUProximity
         }
         
         
+        // HACK: cannot find event for host change. Now we just set the host if game settings change :shrug:
+        [EventListener]
+        public void GameAlter(IGameAlterEvent e)
+        {
+            _proximityHub.Clients.Group(e.Game.Code).HostChange(e.Game.Host.Client.Name);
+        }
+
+
         [EventListener]
         public void OnPlayerMove(IPlayerMovementEvent e)
         {
