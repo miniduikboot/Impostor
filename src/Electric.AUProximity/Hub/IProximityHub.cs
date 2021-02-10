@@ -9,6 +9,7 @@ namespace Electric.AUProximity.Hub
         Task GameStarted();
         Task PlayerMove(string playerName, Pose pose);
         Task MeetingCalled();
+        Task MeetingEnded();
         Task PlayerExiled(string playerName);
         Task GameEnd();
         Task CommsSabotage(bool fix);

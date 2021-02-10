@@ -38,6 +38,11 @@ namespace Electric.AUProximity
             _proximityHub.Clients.Group(e.Game.Code).MeetingCalled();
         }
         [EventListener]
+        public void MeetingEnded(IMeetingEndedEvent e)
+        {
+            _proximityHub.Clients.Group(e.Game.Code).MeetingEnded();
+        }
+        [EventListener]
         public void PlayerMurdered(IPlayerMurderEvent e)
         {
             _proximityHub.Clients.Group(e.Game.Code).PlayerExiled(e.Victim.PlayerInfo.PlayerName);
