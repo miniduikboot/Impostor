@@ -116,6 +116,8 @@ namespace Impostor.Server.Net.State
                 // Pull players out of limbo.
                 await CheckLimboPlayers();
             }
+
+            await _eventManager.CallAsync(new GameHostChangeEvent(this, Host));
         }
 
         private async ValueTask CheckLimboPlayers()
