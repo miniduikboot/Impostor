@@ -1,11 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Impostor.Api;
+using Impostor.Api.Events.Managers;
 using Impostor.Api.Innersloth;
 using Impostor.Api.Net;
 using Impostor.Api.Net.Inner.Objects;
 using Impostor.Api.Net.Messages;
+using Impostor.Server.Events.Player;
 using Impostor.Server.Net.Inner.Objects.Systems;
 using Impostor.Server.Net.Inner.Objects.Systems.ShipStatus;
 using Impostor.Server.Net.State;
@@ -16,12 +18,14 @@ namespace Impostor.Server.Net.Inner.Objects
     internal class InnerShipStatus : InnerNetObject, IInnerShipStatus
     {
         private readonly ILogger<InnerShipStatus> _logger;
+        private readonly IEventManager _eventManager;
         private readonly Game _game;
         private readonly Dictionary<SystemTypes, ISystemType> _systems;
 
-        public InnerShipStatus(ILogger<InnerShipStatus> logger, Game game)
+        public InnerShipStatus(ILogger<InnerShipStatus> logger, IEventManager eventManager, Game game)
         {
             _logger = logger;
+            _eventManager = eventManager;
             _game = game;
 
             _systems = new Dictionary<SystemTypes, ISystemType>
@@ -46,13 +50,12 @@ namespace Impostor.Server.Net.Inner.Objects
             Components.Add(this);
         }
 
-        public override ValueTask HandleRpc(ClientPlayer sender, ClientPlayer? target, RpcCalls call,
+        public override async ValueTask HandleRpc(ClientPlayer sender, ClientPlayer? target, RpcCalls call,
             IMessageReader reader)
         {
             switch (call)
             {
                 case RpcCalls.CloseDoorsOfType:
-                {
                     if (target == null || !target.IsHost)
                     {
                         throw new ImpostorCheatException($"Client sent {nameof(RpcCalls.CloseDoorsOfType)} to wrong destinition, must be host");
@@ -66,36 +69,30 @@ namespace Impostor.Server.Net.Inner.Objects
                     var systemType = (SystemTypes)reader.ReadByte();
 
                     break;
-                }
 
                 case RpcCalls.RepairSystem:
-                {
                     if (target == null || !target.IsHost)
                     {
                         throw new ImpostorCheatException($"Client sent {nameof(RpcCalls.RepairSystem)} to wrong destinition, must be host");
                     }
 
-                    var systemType = (SystemTypes)reader.ReadByte();
-                    if (systemType == SystemTypes.Sabotage && !sender.Character.PlayerInfo.IsImpostor)
+                    var systemType2 = (SystemTypes)reader.ReadByte();
+                    if (systemType2 == SystemTypes.Sabotage && !sender.Character.PlayerInfo.IsImpostor)
                     {
-                        throw new ImpostorCheatException($"Client sent {nameof(RpcCalls.RepairSystem)} for {systemType} as crewmate");
+                        throw new ImpostorCheatException($"Client sent {nameof(RpcCalls.RepairSystem)} for {systemType2} as crewmate");
                     }
 
                     var player = reader.ReadNetObject<InnerPlayerControl>(_game);
                     var amount = reader.ReadByte();
+                    await _eventManager.CallAsync(new PlayerRepairSystemEvent(_game, sender, player, systemType2, amount));
 
                     // TODO: Modify data (?)
                     break;
-                }
 
                 default:
-                {
                     _logger.LogWarning("{0}: Unknown rpc call {1}", nameof(InnerShipStatus), call);
                     break;
-                }
             }
-
-            return default;
         }
 
         public override ValueTask<bool> SerializeAsync(IMessageWriter writer, bool initialState)
