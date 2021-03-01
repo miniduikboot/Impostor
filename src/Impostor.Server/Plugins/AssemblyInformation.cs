@@ -23,14 +23,10 @@ namespace Impostor.Server.Plugins
 
         public Assembly Load(AssemblyLoadContext context)
         {
-            if (_assembly != null)
+            if (_assembly == null)
             {
-                return _assembly;
+                _assembly = Assembly.LoadFile(Path);
             }
-
-            using var stream = File.Open(Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-            _assembly = context.LoadFromStream(stream);
 
             return _assembly;
         }
