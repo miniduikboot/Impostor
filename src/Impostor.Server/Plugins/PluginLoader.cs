@@ -131,7 +131,6 @@ namespace Impostor.Server.Plugins
                     Logger.Warning("Directory \"{path}\" was specified in the PluginLoader configuration, but this directory doesn't exist!", path);
                 }
             }
-
         }
 
         private static void RegisterAssemblies(
