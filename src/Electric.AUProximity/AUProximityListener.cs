@@ -33,9 +33,10 @@ namespace Electric.AUProximity
         [EventListener]
         public void OnPlayerMove(IPlayerMovementEvent e)
         {
+            var position = e.PlayerControl.NetworkTransform.Position;
             _proximityHub.Clients.Group(e.Game.Code).PlayerMove(
                 e.PlayerControl.PlayerInfo.PlayerName,
-                new Pose(e.TargetPosition.X, e.TargetPosition.Y));
+                new Pose(position.X, position.Y));
         }
         [EventListener]
         public void MeetingCalled(IMeetingStartedEvent e)
