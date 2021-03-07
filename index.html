@@ -20,7 +20,7 @@
         <section class="container">
             <div class="mb-4 mb-md-3">
                 <h3 class="text-center text-md-left mb-4 mb-md-3 w-100">Connect to a Server</h3>
-                <p class="text-justify text-sm-center text-md-left support-text android-support">To play on a private server, type the server IP and overwrite the <b>regionInfo.dat</b> file in <b>Internal Storage/Android/data/com.innersloth.spacemafia/files</b>.</p>
+                <p class="text-justify text-sm-center text-md-left support-text android-support">To play on a private server, type the server IP and overwrite the <b>regionInfo.json</b> file in <b>Internal Storage/Android/data/com.innersloth.spacemafia/files</b>.</p>
                 <p class="text-justify text-sm-center text-md-left support-text ios-support">There are two methods to play on a private server on iOS, both of which require a <a href="https://canijailbreak.com">jailbreak</a>.</p>
                 <h4 class="text-md-left mb-4 mb-md-3 w-100 support-text ios-support">1. Jailbreak tweak</h4>
                 <p class="text-justify text-md-left support-text ios-support">
@@ -29,7 +29,7 @@
                 </p>
                 <div class="support-text ios-support mt-4">
                     <h4 class="text-md-left mb-4 mb-md-3 w-100">2. Manual method</h4>
-                    <p class="text-justify text-sm-center text-md-left support-text ios-support">Type the server IP and overwrite the <b>regionInfo.dat</b> file in <b>/var/mobile/Containers/Data/Application/Among Us/Documents</b> using Filza.</p>
+                    <p class="text-justify text-sm-center text-md-left support-text ios-support">Type the server IP and overwrite the <b>regionInfo.json</b> file in <b>/var/mobile/Containers/Data/Application/Among Us/Documents</b> using Filza.</p>
                 </div>
             </div>
             <form id="serverFileForm" class="container p-0">
@@ -38,9 +38,36 @@
                         <input class="form-control form-control-lg bg-transparent text-light text-center mr-2"
                             type="text" placeholder="Server IP" id="ip" name="ip" required
                             pattern="^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
-                            data-mask=099.099.099.099 data-mask-selectonfocus="true">
-                        <input class="form-control form-control-lg bg-transparent text-light" style="max-width: 110px"
-                            type="number" placeholder="Port" id="port" name="port" min="1" max="65535" required>
+                               data-mask=099.099.099.099 data-mask-selectonfocus="true">
+                        <!-- Disable port input until this is fixed in Among Us -->
+                        <!--<input class="form-control form-control-lg bg-transparent text-light" style="max-width: 110px"
+                            type="number" placeholder="Port" id="port" name="port" min="1" max="65535" required>-->
+                    </div>
+                </div>
+                <div class="row justify-content-center mb-5 mb-md-4">
+                    <div class="row justify-content-center flex-nowrap">
+                        <input class="form-control form-control-lg bg-transparent text-light text-center mr-2"
+                            type="text" placeholder="Server Domain (optional)" id="fqdn" name="fqdn">
+                    </div>
+                </div>
+                <div class="row justify-content-center mb-5 mb-md-4">
+                    <div class="row justify-content-center flex-nowrap">
+                        <input class="form-control form-control-lg bg-transparent text-light text-center mr-2"
+                            type="text" placeholder="Server Name (optional)" id="name" name="name">
+                    </div>
+                </div>
+                <div class="row justify-content-center mb-5 mb-md-4">
+                    <div class="row justify-content-center flex-nowrap" id="keys-radio">
+                        <input type="radio" id="keys-steam" name="keys" value="steam">
+                        <label for="keys-steam" class="p-2">Steam</label>
+                        <input type="radio" id="keys-android" name="keys" value="android">
+                        <label for="keys-android" class="p-2">Android</label>
+                        <input type="radio" id="keys-itch.io" name="keys" value="itch">
+                        <label for="keys-itch.io" class="p-2">Itch.io</label>
+                        <input type="radio" id="keys-epic" name="keys" value="epic">
+                        <label for="keys-epic" class="p-2">Epic</label>
+                        <input type="radio" id="keys-win10" name="keys" value="win10">
+                        <label for="keys-win10" class="p-2">MS Store</label>
                     </div>
                 </div>
                <div class="row justify-content-center">
@@ -53,7 +80,7 @@
                     To play on a private server follow the following steps:
                     <ol>
                         <li>Type the server IP and download click the button "Download server file".</li>
-                        <li>Make sure that the file is named <code>regionInfo.dat</code> and doesn't have additional numbers (e.g. <code>regionInfo (1).dat</code>) because you downloaded it multiple times.</li>
+                        <li>Make sure that the file is named <code>regionInfo.json</code> and doesn't have additional numbers (e.g. <code>regionInfo (1).json</code>) because you downloaded it multiple times.</li>
                         <li>
                             Press <kbd class="key"><svg aria-hidden="true" focusable="false" data-prefix="fab" data-icon="windows" class="svg-inline--fa fa-windows fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M0 93.7l183.6-25.3v177.4H0V93.7zm0 324.6l183.6 25.3V268.4H0v149.9zm203.8 28L448 480V268.4H203.8v177.9zm0-380.6v180.1H448V32L203.8 65.7z"></path></svg></kbd> + <kbd class="key">R</kbd> on your keyboard and paste the following:<br />
                             <div class="text-center my-2">
