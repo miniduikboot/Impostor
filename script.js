@@ -1,80 +1,62 @@
-var SERVER_PORT = 22023;
+// const DEFAULT_PORT = 22023;
 
-var DEFAULT_KEYS = {
-    // Version 2021.3.5s
-    steam: { selected: 'NHKLLGFLCLM', servers: 'PBKMLNEHKHL' },
-    // Version 2021.3.5a
-    android: { selected: 'PFJBDMNLKOC', servers: 'LIDGKFEKEMH' },
-    // Version 2021.3.5i
-    itch: { selected: 'FMCHICBDPCE', servers: 'HACEEIOGMDC' },
-    // Version 2021.3.5e
-    epic: { selected: 'KCEOFOCILEP', servers: 'FHHFNNEMCJC' },
-    // Version 2021.2.21m
-    win10: { selected: 'BIPBMPFJBMI', servers: 'GECPHDGCFJM' },
+const MAPPINGS = {
+    "2021.3.5s": { CurrentRegionIdx: "NHKLLGFLCLM", Regions: "PBKMLNEHKHL" },
+    "2021.3.5a": { CurrentRegionIdx: "PFJBDMNLKOC", Regions: "LIDGKFEKEMH" },
+    "2021.3.5o": { CurrentRegionIdx: "BBHHIMPDFMB", Regions: "GAOCJNFMKLA" },
+    "2021.3.5i": { CurrentRegionIdx: "FMCHICBDPCE", Regions: "HACEEIOGMDC" },
+    "2021.3.5e": { CurrentRegionIdx: "KCEOFOCILEP", Regions: "FHHFNNEMCJC" },
+    "2021.2.21m": { CurrentRegionIdx: "BIPBMPFJBMI", Regions: "GECPHDGCFJM" },
+};
+
+function download() {
+    const serverIp = document.getElementById("ip").value;
+    // const serverPort = document.getElementById("port").value ?? DEFAULT_PORT; TODO wait for update fixing ports in DnsRegionInfo
+    const serverFqdn = document.getElementById("fqdn").value;
+    let serverName = document.getElementById("name").value;
+    if (!serverName) {
+        serverName = "Impostor";
+    }
+
+    const gamePlatform = document.getElementById("platform").value;
+
+    const json = generateRegionInfo(serverName, serverIp, serverFqdn, MAPPINGS[gamePlatform]);
+    const blob = new Blob([json], { type: "text/plain" });
+    saveFile(blob, "regionInfo.json");
+
+    return false;
 }
 
-$(document).ready(function() {
-    fillIPAdressUsingLocationHash();
+const platformTexts = {
+    ".ios-support": ["o"],
+    ".android-support": ["a"],
+    ".desktop-support": ["s", "i", "e", "m"],
+}
 
-    showPlatformText();
+function updatePlatformText() {
+    const gamePlatform = document.getElementById("platform").value;
 
-    $("#serverFileForm").submit(function(e) {
-        e.preventDefault();
-        let serverIp = $("#ip").val();
-        // Ports cannot be changed in the current version
-        //let serverPort = $("#port").val();
-        let serverFqdn = $("#fqdn").val();
-        let serverName = $("#name").val();
-        if (serverName == "") {
-            serverName = "Impostor";
-        }
-        let platform = $("#keys-radio input[type='radio']:checked").attr("value")
-        let keys = DEFAULT_KEYS[platform];
-        let serverFileBytes = generateServerFile(serverName, serverIp, serverFqdn, keys);
-        let blob = new Blob([serverFileBytes.buffer]);
-        saveFile(blob, "regionInfo.json");
-    });
-
-});
-
-function fillIPAdressUsingLocationHash() {
-    let urlServerAddress = document.location.hash.substr(1).split(":");
-    let serverIp = urlServerAddress[0];
-    let serverPort = urlServerAddress.length > 1 ? urlServerAddress[1] : SERVER_PORT.toString();
-    const ipPattern = $("#ip").attr("pattern");
-
-    if (new RegExp(ipPattern).test(serverIp)) {
-        $("#ip").val(serverIp);
-    }
-    if (new RegExp("^[0-9]+$", "g").test(serverPort)) {
-        $("#port").val(serverPort);
+    for (let className in platformTexts) {
+        const isVisible = platformTexts[className].some(postfix => gamePlatform.endsWith(postfix));
+        document.querySelector(className).style.display = isVisible ? "block" : "none";
     }
 }
 
-function showPlatformText() {
-    if (navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPod/i)) {
-        $('.ios-support').show();
-    } else if (navigator.userAgent.match(/android/i)) {
-        $('.android-support').show();
-        $("#keys-android").prop("checked", true)
-    } else {
-        $('.desktop-support').show();
-        $("#keys-steam").prop("checked", true)
-    }
-}
+function generateRegionInfo(name, ip, fqdn, mappings) {
+    const region = {
+        "$type": "DnsRegionInfo, Assembly-CSharp",
+        "Fqdn": fqdn,
+        "DefaultIp": ip,
+        "Name": name,
+        "TranslateName": 1003 // StringNames.NoTranslation
+    };
 
-function generateServerFile(name, ip, fqdn, keys) {
-    let server = new Map();
-    server['$type'] = 'DnsRegionInfo, Assembly-CSharp';
-    server['Fqdn'] = fqdn;
-    server['DefaultIp'] = ip;
-    server['Name'] = name;
-    server['TranslateName'] = 1003;
+    const jsonServerData = {
+        [mappings.CurrentRegionIdx]: 0,
+        [mappings.Regions]: [region]
+    };
 
-    let file = new Map();
-    file[keys.selected] = 0;
-    file[keys.servers] = [server];
-    return new Uint8Array(stringToBytes(JSON.stringify(file)));
+    return JSON.stringify(jsonServerData);
 }
 
 function saveFile(blob, fileName) {
@@ -82,7 +64,7 @@ function saveFile(blob, fileName) {
 
     let a = document.createElement("a");
     document.body.appendChild(a);
-    a.style = "display: none";
+    a.style.display = "none";
     a.href = url;
     a.download = fileName;
     a.click();
@@ -90,10 +72,27 @@ function saveFile(blob, fileName) {
     URL.revokeObjectURL(url);
 }
 
-function stringToBytes(str) {
-    let bytes = [];
-    for (let i = 0; i < str.length; i++) {
-        bytes.push(str.charCodeAt(i));
+function fillFromLocationHash() {
+    const urlServerAddress = document.location.hash.substr(1).split(":");
+    const serverIp = urlServerAddress[0];
+    // const serverPort = urlServerAddress.length > 1 ? urlServerAddress[1] : DEFAULT_PORT.toString();
+
+    const ipPattern = document.getElementById("ip").getAttribute("pattern");
+    if (new RegExp(ipPattern).test(serverIp)) {
+        document.getElementById("ip").value = serverIp;
     }
-    return bytes;
+
+    // if (new RegExp("^[0-9]+$", "g").test(serverPort)) {
+    //     document.getElementById("port").value = serverPort;
+    // }
 }
+
+fillFromLocationHash();
+
+if (['iPhone', 'iPad', 'iPod'].indexOf(window.navigator.platform) !== -1) {
+    document.getElementById("platform").value = "2021.3.5o";
+} else if (/Android/.test(window.navigator.userAgent)) {
+    document.getElementById("platform").value = "2021.3.5a";
+}
+
+updatePlatformText();
