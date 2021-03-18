@@ -1,8 +1,9 @@
 // const DEFAULT_PORT = 22023;
 
 const MAPPINGS = {
+    // TODO: once 2021.3.9 rolls out across all platforms remove this selection altogether
     "2021.3.5s": { CurrentRegionIdx: "NHKLLGFLCLM", Regions: "PBKMLNEHKHL" },
-    "2021.3.5a": { CurrentRegionIdx: "PFJBDMNLKOC", Regions: "LIDGKFEKEMH" },
+    "2021.3.9a": { CurrentRegionIdx: "CurrentRegionIdx", Regions: "Regions" },
     "2021.3.5o": { CurrentRegionIdx: "BBHHIMPDFMB", Regions: "GAOCJNFMKLA" },
     "2021.3.5i": { CurrentRegionIdx: "FMCHICBDPCE", Regions: "HACEEIOGMDC" },
     "2021.3.5e": { CurrentRegionIdx: "KCEOFOCILEP", Regions: "FHHFNNEMCJC" },
@@ -92,7 +93,7 @@ fillFromLocationHash();
 if (['iPhone', 'iPad', 'iPod'].indexOf(window.navigator.platform) !== -1) {
     document.getElementById("platform").value = "2021.3.5o";
 } else if (/Android/.test(window.navigator.userAgent)) {
-    document.getElementById("platform").value = "2021.3.5a";
+    document.getElementById("platform").value = "2021.3.9a";
 }
 
 updatePlatformText();
