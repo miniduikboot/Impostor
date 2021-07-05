@@ -5,26 +5,28 @@ There are currently two modes to run the Impostor server in. The first way is th
 ## Single server
 
 ### Without docker
+
 1. Install the **.NET 5.0 runtime**.
-    - [Windows x64](https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-5.0.7-windows-x64-installer)
-    - [Linux x64](https://docs.microsoft.com/en-us/dotnet/core/install/linux)
-    - [macOS x64](https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-5.0.7-macos-x64-installer)
+   - [Windows x64](https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-5.0.7-windows-x64-installer)
+   - [Linux x64](https://docs.microsoft.com/en-us/dotnet/core/install/linux)
+   - [macOS x64](https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-5.0.7-macos-x64-installer)
 2. Find the [latest release](https://github.com/Impostor/Impostor/releases) or the [latest CI build](https://ci.appveyor.com/project/Impostor/Impostor/branch/master/artifacts).
-3. Download the version for your OS (linux/win/osx) and your architecture (x64/arm/arm64).
+3. Download the version for your OS (linux/win/osx). Unless you are running on a Raspberry Pi or another device with an ARM32-bit system, you should download the x64 version.
 4. Extract the zip.
-5. Modify `config.json` to your liking. Documentation can be found [here](Server-configuration.md) *(this step is mandatory if you want to expose this server to other devices)*
+5. Modify `config.json` to your liking. Documentation can be found [here](Server-configuration.md) _(this step is mandatory if you want to expose this server to other devices)_
 6. Run `Impostor.Server` (Linux/macOS) or `Impostor.Server.exe` (Windows)
 
 ### Using docker
 
-[![Docker Image](https://img.shields.io/docker/v/aeonlucid/impostor?sort=semver)](https://hub.docker.com/repository/docker/aeonlucid/impostor)
-[![Docker Image](https://img.shields.io/docker/v/aeonlucid/impostor/nightly)](https://hub.docker.com/repository/docker/aeonlucid/impostor)
+[![Docker Image](https://img.shields.io/docker/v/aeonlucid/impostor?sort=semver)](https://hub.docker.com/r/aeonlucid/impostor)
+[![Docker Image](https://img.shields.io/docker/v/aeonlucid/impostor/nightly)](https://hub.docker.com/r/aeonlucid/impostor)
 
 ```
 docker run -p 22023:22023/udp aeonlucid/impostor:nightly
 ```
 
 ### Using docker-compose
+
 ```
 version: '3.4'
 
@@ -42,7 +44,7 @@ services:
 
 ## Multiple servers
 
-Follow the steps from the single server on two or more servers.
+Follow the steps from the single server on two or more servers. You should only need to set this up if you have a very large server and can no longer fit everyone on one server: if this is your first time installing Impostor, use a single server.
 
 ### Master server
 
