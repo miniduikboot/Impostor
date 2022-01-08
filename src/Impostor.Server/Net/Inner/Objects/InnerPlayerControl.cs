@@ -86,6 +86,7 @@ namespace Impostor.Server.Net.Inner.Objects
 
         public override async ValueTask<bool> HandleRpcAsync(ClientPlayer sender, ClientPlayer? target, RpcCalls call, IMessageReader reader)
         {
+            _logger.LogDebug("RPC {0}", call);
             switch (call)
             {
                 case RpcCalls.PlayAnimation:
@@ -364,6 +365,8 @@ namespace Impostor.Server.Net.Inner.Objects
                     {
                         return false;
                     }
+                    _logger.LogWarning("Starting ProtectPlayer delay");
+                    await Task.Delay(5000);
 
                     Rpc45ProtectPlayer.Deserialize(reader, Game, out _, out _);
                     break;
