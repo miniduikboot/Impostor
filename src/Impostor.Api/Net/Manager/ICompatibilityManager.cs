@@ -1,3 +1,5 @@
+using Impostor.Api.Games;
+
 namespace Impostor.Api.Net.Manager
 {
     /**
@@ -22,12 +24,13 @@ namespace Impostor.Api.Net.Manager
          * they can play a game together without issues.
          * </summary>
          * <param name="clientVersion">The client version to check for.</param>
-         * <param name="compatGroup">If the result is Compatible, the compat group.</param>
          * <returns>
          * Whether this version is supported by the server at the moment and if not, whether it is too old or too new.
          * </returns>
          */
-        public VersionCompareResult TryGetCompatibilityGroup(int clientVersion, out int? compatGroup);
+        public VersionCompareResult TryGetCompatibilityGroup(int clientVersion);
+
+        public bool GetGameJoinError(int hostVersion, int clinetVersion, out GameJoinError error);
 
         /**
          * <summary>
@@ -45,7 +48,7 @@ namespace Impostor.Api.Net.Manager
          * Whether to add this version to the list of minimum/maximum game versions supported.
          * </param>
          */
-        public void AddSupportedVersion(int gameVersion, int compatGroup, bool includeInSupportRange = true);
+        public void AddSupportedVersion(int gameVersion, int[]? compatGroup, bool includeInSupportRange = true);
 
         /**
          * <summary>
