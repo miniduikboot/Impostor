@@ -1,5 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Impostor.Api;
+using Impostor.Api.Innersloth;
+using Impostor.Api.Net;
+using Impostor.Api.Net.Inner.Objects;
 
 namespace Impostor.Server.Net.Inner.Objects.Systems.ShipStatus
 {
@@ -33,6 +38,36 @@ namespace Impostor.Server.Net.Inner.Objects.Systems.ShipStatus
             {
                 UserConsolePairs.Add(new Tuple<byte, byte>(reader.ReadByte(), reader.ReadByte()));
             }
+        }
+
+        public async Task<bool> UpdateSystemAsync(IClientPlayer sender, IInnerPlayerControl target, IMessageReader reader)
+        {
+            var updateType = reader.ReadByte();
+            if (updateType == 128)
+            {
+                // Start sabotage
+            }
+            else if (updateType == 16)
+            {
+                // Repaired
+            }
+            else if ((updateType & 64) == 64)
+            {
+                // Console completed
+            }
+            else if ((updateType & 32) == 32)
+            {
+                // Console cleared
+            }
+            else
+            {
+                if (await sender.Client.ReportCheatAsync(SystemTypes.LifeSupp, CheatCategory.Sabotage, $"Player performed unknown update type {updateType}"))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

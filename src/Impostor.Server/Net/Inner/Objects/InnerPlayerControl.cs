@@ -496,6 +496,11 @@ namespace Impostor.Server.Net.Inner.Objects
                         return false;
                     }
 
+                    if (!await ValidateRole(call, sender, PlayerInfo, RoleTypes.Shapeshifter))
+                    {
+                        return false;
+                    }
+
                     Rpc46Shapeshift.Deserialize(reader, Game, out var playerControl, out var shouldAnimate);
                     break;
                 }

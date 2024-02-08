@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
+using Impostor.Api.Net;
+using Impostor.Api.Net.Inner.Objects;
 
 namespace Impostor.Server.Net.Inner.Objects.Systems.ShipStatus
 {
@@ -16,6 +19,11 @@ namespace Impostor.Server.Net.Inner.Objects.Systems.ShipStatus
             var sid = reader.ReadByte();
             var targetId = reader.ReadUInt32();
             var isLeft = reader.ReadBoolean();
+        }
+
+        public Task<bool> UpdateSystemAsync(IClientPlayer sender, IInnerPlayerControl target, IMessageReader reader)
+        {
+            return Task.FromResult(true);
         }
     }
 }

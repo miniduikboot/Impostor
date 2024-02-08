@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Impostor.Api.Net;
+using Impostor.Api.Net.Inner.Objects;
 
 namespace Impostor.Server.Net.Inner.Objects.Systems.ShipStatus
 {
@@ -24,6 +27,11 @@ namespace Impostor.Server.Net.Inner.Objects.Systems.ShipStatus
             {
                 _doors[i] = (num & (ulong)(1L << (i & 31))) > 0UL;
             }
+        }
+
+        public Task<bool> UpdateSystemAsync(IClientPlayer sender, IInnerPlayerControl target, IMessageReader reader)
+        {
+            return Task.FromResult(true);
         }
     }
 }

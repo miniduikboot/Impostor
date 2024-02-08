@@ -8,5 +8,6 @@ public enum CheatCategory
     Limit,
     Ownership,
     Role,
+    Sabotage,
     Target,
 }
