@@ -116,7 +116,10 @@ namespace Impostor.Server.Net
         {
             var flag = reader.Tag;
 
-            _logger.LogTrace("[{0}] Server got {1}.", Id, MessageFlags.FlagToString(flag));
+            if (flag != MessageFlags.GameData)
+            {
+                _logger.LogTrace("[{0}] Server got {1}.", Id, MessageFlags.FlagToString(flag));
+            }
 
             switch (flag)
             {
