@@ -94,21 +94,18 @@ namespace Impostor.Server.Net.Inner.Objects.ShipStatus
 
                 case RpcCalls.UpdateSystem:
                 {
-                    // TODO: properly deserialize this RPC
                     Rpc35UpdateSystem.Deserialize(reader, Game, out var systemType, out var playerControl);
 
-                    if (AntiCheatConfig.EnableOwnershipChecks && sender.Character != playerControl)
+                    if (playerControl == null)
                     {
-                        if (await sender.Client.ReportCheatAsync((SystemTypes)systemType, "Attempted to change switches as another player"))
-                        {
-                            return false;
-                        }
+                        return true; // TODO
                     }
 
                     if (_systems.TryGetValue(systemType, out var value))
                     {
-                        return value.UpdateSystem(sender, playerControl, reader);
+                        return await value.UpdateSystemAsync(sender, playerControl, reader);
                     }
+
                     break;
                 }
 

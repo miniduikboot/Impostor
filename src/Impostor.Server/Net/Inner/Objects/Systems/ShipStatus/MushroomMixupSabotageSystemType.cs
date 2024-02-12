@@ -1,16 +1,15 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Impostor.Api.Config;
+using Impostor.Api;
+using Impostor.Api.Innersloth;
 using Impostor.Api.Net;
 using Impostor.Api.Net.Inner.Objects;
-using Impostor.Api.Innersloth;
 
 namespace Impostor.Server.Net.Inner.Objects.Systems.ShipStatus;
 
 public class MushroomMixupSabotageSystemType : ISystemType
 {
     private readonly Dictionary<byte, CondensedOutfit> _currentMixups = new();
-    private readonly AntiCheatConfig _antiCheatConfig;
     private State _currentState;
     private float _currentSecondsUntilHeal;
 
@@ -25,11 +24,6 @@ public class MushroomMixupSabotageSystemType : ISystemType
         Inactive,
         JustTriggered,
         IdleButMixedUp,
-    }
-
-    public MushroomMixupSabotageSystemType(AntiCheatConfig antiCheatConfig)
-    {
-        _antiCheatConfig = antiCheatConfig;
     }
 
     public void Serialize(IMessageWriter writer, bool initialState)
@@ -66,8 +60,7 @@ public class MushroomMixupSabotageSystemType : ISystemType
         var operation = reader.ReadByte();
         if ((Operation)operation != Operation.TriggerSabotage)
         {
-            if (_antiCheatConfig.EnableSabotageChecks &&
-                await sender.Client.ReportCheatAsync(SystemTypes.MushroomMixupSabotage, "Unknown sabotage operation"))
+            if (await sender.Client.ReportCheatAsync(SystemTypes.MushroomMixupSabotage, CheatCategory.Sabotage, "Unknown sabotage operation"))
             {
                 return false;
             }

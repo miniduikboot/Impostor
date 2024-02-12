@@ -1,22 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Impostor.Api.Config;
+using Impostor.Api;
+using Impostor.Api.Innersloth;
 using Impostor.Api.Net;
 using Impostor.Api.Net.Inner.Objects;
-using Impostor.Api.Innersloth;
 
 namespace Impostor.Server.Net.Inner.Objects.Systems.ShipStatus
 {
     public class MedScanSystem : ISystemType
     {
-        public MedScanSystem(AntiCheatConfig antiCheatConfig)
+        public MedScanSystem()
         {
-            _antiCheatConfig = antiCheatConfig;
             UsersList = new List<byte>();
         }
-
-        private readonly AntiCheatConfig _antiCheatConfig;
 
         public List<byte> UsersList { get; }
 
@@ -44,8 +41,7 @@ namespace Impostor.Server.Net.Inner.Objects.Systems.ShipStatus
 
             if (target.PlayerId != playerId)
             {
-                if (_antiCheatConfig.EnableOwnershipChecks &&
-                    await sender.Client.ReportCheatAsync(SystemTypes.MedBay, "Tried to mess with another players queue position"))
+                if (await sender.Client.ReportCheatAsync(SystemTypes.MedBay, CheatCategory.Ownership, "Tried to mess with another players queue position"))
                 {
                     return false;
                 }
@@ -55,8 +51,7 @@ namespace Impostor.Server.Net.Inner.Objects.Systems.ShipStatus
             {
                 if (UsersList.Contains(playerId))
                 {
-                    if (_antiCheatConfig.EnableGameFlowChecks &&
-                        await sender.Client.ReportCheatAsync(SystemTypes.MedBay, "Tried to add the player to the medbay queue again"))
+                    if (await sender.Client.ReportCheatAsync(SystemTypes.MedBay, CheatCategory.GameFlow, "Tried to add the player to the medbay queue again"))
                     {
                         return false;
                     }
@@ -74,8 +69,7 @@ namespace Impostor.Server.Net.Inner.Objects.Systems.ShipStatus
                 }
                 else
                 {
-                    if (_antiCheatConfig.EnableGameFlowChecks &&
-                        await sender.Client.ReportCheatAsync(SystemTypes.MedBay, "Invalid medbay dequeuing operating"))
+                    if (await sender.Client.ReportCheatAsync(SystemTypes.MedBay, CheatCategory.GameFlow, "Invalid medbay dequeuing operating"))
                     {
                         return false;
                     }
@@ -83,8 +77,7 @@ namespace Impostor.Server.Net.Inner.Objects.Systems.ShipStatus
             }
             else
             {
-                if (_antiCheatConfig.EnableGameFlowChecks &&
-                    await sender.Client.ReportCheatAsync(SystemTypes.MedBay, "Unknown medbay queue operation"))
+                if (await sender.Client.ReportCheatAsync(SystemTypes.MedBay, CheatCategory.GameFlow, "Unknown medbay queue operation"))
                 {
                     return false;
                 }
