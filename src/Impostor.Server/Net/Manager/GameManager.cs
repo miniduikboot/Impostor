@@ -142,5 +142,14 @@ namespace Impostor.Server.Net.Manager
 
             return (true, game);
         }
+
+        internal async ValueTask OnClientDisconnectAsync(IClient client)
+        {
+            if (_gamesCreatedBy.TryGetValue(client, out var game) && game != null && game.PlayerCount == 0)
+            {
+                _logger.LogWarning("Client {Name}({ClientId}) left empty game open when disconnecting", client.Name, client.Id);
+                await RemoveAsync(game.Code);
+            }
+        }
     }
 }
